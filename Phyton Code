@@ -1,0 +1,78 @@
+import ipywidgets as widgets
+from IPython.display import display
+import random
+
+# Initialize the board
+board = [' '] * 9
+current_player = 'X'
+
+# Create buttons for each cell
+buttons = [widgets.Button(description=' ', layout=widgets.Layout(width='50px', height='50px')) for _ in range(9)]
+
+# Function to handle button click
+def on_button_click(button, index):
+    global current_player
+    if board[index] == ' ':
+        board[index] = current_player
+        button.description = current_player
+        check_winner()
+        switch_player()
+
+        # Call ai_make_move if the game is not over and it's the AI's turn
+        if current_player == 'O' and ' ' in board:
+            ai_make_move()
+
+# Function to switch players
+def switch_player():
+    global current_player
+    current_player = 'O' if current_player == 'X' else 'X'
+
+# Function to check for a winner
+def check_winner():
+    # Check rows, columns, and diagonals
+    for i in range(3):
+        if board[i] == board[i + 3] == board[i + 6] != ' ':
+            print(f'Player {board[i]} wins!')
+            reset_board()
+            return
+        if board[i * 3] == board[i * 3 + 1] == board[i * 3 + 2] != ' ':
+            print(f'Player {board[i * 3]} wins!')
+            reset_board()
+            return
+    if board[0] == board[4] == board[8] != ' ' or board[2] == board[4] == board[6] != ' ':
+        print(f'Player {board[4]} wins!')
+        reset_board()
+        return
+    # Check for a tie
+    if ' ' not in board:
+        print('It\'s a tie!')
+        reset_board()
+
+# Function to reset the board
+def reset_board():
+    global board
+    for i in range(9):
+        board[i] = ' '
+        buttons[i].description = ' '
+
+# Function to make a move for the AI opponent
+def ai_make_move():
+    # Implement the AI logic (minimax algorithm or a simpler approach)
+    # For simplicity, let's use a random move for now
+    empty_cells = [i for i in range(9) if board[i] == ' ']
+    if empty_cells:
+        ai_move = random.choice(empty_cells)
+        board[ai_move] = 'O'
+        buttons[ai_move].description = 'O'
+        check_winner()
+        switch_player()
+
+# Assign click event to each button
+for i, button in enumerate(buttons):
+    button.on_click(lambda _, i=i: on_button_click(buttons[i], i))
+
+# Display the buttons in a 3x3 grid
+board_layout = widgets.GridBox(buttons, layout=widgets.Layout(grid_template_columns="repeat(3, 50px)"))
+display(board_layout)
+
+
